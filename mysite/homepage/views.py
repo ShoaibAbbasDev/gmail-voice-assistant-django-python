@@ -19,13 +19,14 @@ import re
 
 file = "good"
 i="0"
-passwrd = ""
-addr = ""
+passwrd = 'wlpdibsmgzksgtwa'
+addr = 'syedshoaib78637@gmail.com'
 item =""
 subject = ""
 body = ""
 s = smtplib.SMTP('smtp.gmail.com', 587)
 s.starttls()
+s.login('syedshoaib78637@gmail.com','wlpdibsmgzksgtwa')
 imap_url = 'imap.gmail.com'
 conn = imaplib.IMAP4_SSL(imap_url)
 attachment_dir = 'C:/Users/Chacko/Desktop/'
@@ -91,64 +92,61 @@ def convert_special_char(text):
 
 
 def login_view(request):
-    global i, addr, passwrd 
+    global i, addr, passwrd
 
     if request.method == 'POST':
         text1 = "Welcome to our Voice Based Email. Login with your email account in order to continue. "
         texttospeech(text1, file + i)
         i = i + str(1)
-
-        flag = True
-        while (flag):
-            texttospeech("Enter your Email", file + i)
+        texttospeech("Enter your Email", file + i)
+        i = i + str(1)
+        addr = speechtotext(10)
+        if addr != 'N':
+            texttospeech("You meant " + addr + " say yes to confirm or no to enter again", file + i)
             i = i + str(1)
-            addr = speechtotext(10)
-            
-            if addr != 'N':
-                texttospeech("You meant " + addr + " say yes to confirm or no to enter again", file + i)
-                i = i + str(1)
-                say = speechtotext(3)
-                if say == 'yes' or say == 'Yes':
-                    flag = False
-            else:
-                texttospeech("could not understand what you meant:", file + i)
-                i = i + str(1)
+            say = speechtotext(3)
+            if say == 'yes' or say == 'Yes':
+                flag = False
+        else:
+            texttospeech("could not understand what you meant:", file + i)
+            i = i + str(1)
         addr = addr.strip()
         addr = addr.replace(' ', '')
         addr = addr.lower()
         #addr = convert_special_char(addr)
-        addr = 'syedshoaibabbas786@gmail.com'
+        addr = 'syedshoaib78637@gmail.com'
         print(addr)
         request.email = addr
 
         flag = True
-        while (flag):
-            texttospeech("Enter your password", file + i)
+        texttospeech("Enter your password", file + i)
+        i = i + str(1)
+        passwrd = speechtotext(10)
+        if addr != 'N':
+            texttospeech("You meant " + passwrd + " say yes to confirm or no to enter again", file + i)
             i = i + str(1)
-            passwrd = speechtotext(10)
-            
-            if addr != 'N':
-                texttospeech("You meant " + passwrd + " say yes to confirm or no to enter again", file + i)
-                i = i + str(1)
-                say = speechtotext(3)
-                if say == 'yes' or say == 'Yes':
-                    flag = False
-            else:
-                texttospeech("could not understand what you meant:", file + i)
-                i = i + str(1)
+            say = speechtotext(3)
+            if say == 'yes' or say == 'Yes':
+                flag = False
+        else:
+            texttospeech("could not understand what you meant:", file + i)
+            i = i + str(1)
         passwrd = passwrd.strip()
         passwrd = passwrd.replace(' ', '')
         passwrd = passwrd.lower()
         #passwrd = convert_special_char(passwrd)
-        passwrd = 'Abbas786@@'
+        passwrd = 'wlpdibsmgzksgtwa'
         print(passwrd)
 
         imap_url = 'imap.gmail.com'
         #passwrd = ''
         #addr = ''
         conn = imaplib.IMAP4_SSL(imap_url)
+        print("******************************************************")
+        print (conn)
+        print("******************************************************")
         try:
-            conn.login(addr, passwrd)
+            print (conn.login(addr, passwrd))
             s.login(addr, passwrd)
             texttospeech("Congratulations. You have logged in successfully. You will now be redirected to the menu page.", file + i)
             i = i + str(1)
@@ -156,13 +154,14 @@ def login_view(request):
         except:
             texttospeech("Invalid Login Details. Please try again.", file + i)
             i = i + str(1)
+            print (i)
             return JsonResponse({'result': 'failure'})
 
-    
+
     detail  = Details()
     detail.email = addr
     detail.password = passwrd
-    return render(request, 'homepage/login.html', {'detail' : detail}) 
+    return render(request, 'homepage/login.html', {'detail' : detail})
 
 def options_view(request):
     global i, addr, passwrd
@@ -170,12 +169,11 @@ def options_view(request):
         flag = True
         texttospeech("You are logged into your account. What would you like to do ?", file + i)
         i = i + str(1)
-        while(flag):
-            texttospeech("To compose an email say compose. To open Inbox folder say Inbox. To open Sent folder say Sent. To open Trash folder say Trash. To Logout say Logout. Do you want me to repeat?", file + i)
-            i = i + str(1)
-            say = speechtotext(3)
-            if say == 'No' or say == 'no':
-                flag = False
+        texttospeech("To compose an email say compose. To open Inbox folder say Inbox. To open Sent folder say Sent. To open Trash folder say Trash. To Logout say Logout. Do you want me to repeat?", file + i)
+        i = i + str(1)
+        say = speechtotext(3)
+        if say == 'N' or say == 'n':
+            flag = False
         texttospeech("Enter your desired action", file + i)
         i = i + str(1)
         act = speechtotext(5)
@@ -211,29 +209,22 @@ def compose_view(request):
         flag1 = True
         fromaddr = addr
         toaddr = list()
-        while flag1:
-            while flag:
-                texttospeech("enter receiver's email address:", file + i)
-                i = i + str(1)
-                to = ""
-                to = speechtotext(15)
-                if to != 'N':
-                    
-                    texttospeech("You meant " + to + " say yes to confirm or no to enter again", file + i)
-                    i = i + str(1)
-                    say = speechtotext(5)
-                    if say == 'yes' or say == 'Yes':
-                        toaddr.append(to)
-                        flag = False
-                else:
-                    texttospeech("could not understand what you meant", file + i)
-                    i = i + str(1)
+
+        texttospeech("enter receiver's email address:", file + i)
+        i = i + str(1)
+        to = ""
+        to = speechtotext(15)
+        texttospeech("You meant " + to + " say yes to confirm or no to enter again", file + i)
+        i = i + str(1)
+        say = speechtotext(1)
+        if say == 'y' or say == 'Y':
+            toaddr.append(to)
+            flag = False
             texttospeech("Do you want to enter more recipients ?  Say yes or no.", file + i)
             i = i + str(1)
-            say1 = speechtotext(3)
-            if say1 == 'No' or say1 == 'no':
+            say1 = speechtotext(5)
+            if say1 == 'N' or say1 == 'n':
                 flag1 = False
-            flag = True
 
         newtoaddr = list()
         for item in toaddr:
@@ -312,15 +303,18 @@ def compose_view(request):
                 filename = filename.replace(' ', '')
                 filename = filename.lower()
                 filename = convert_special_char(filename)
-                
+
                 attachment = open(filename, "rb")
                 p = MIMEBase('application', 'octet-stream')
                 p.set_payload((attachment).read())
                 encoders.encode_base64(p)
                 p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
                 msg.attach(p)
+                #print( s.sendmail(fromaddr, 'syedshoaib78637@gmail.com', msg.as_string()))
+        message = 'Subject: {}\n\n{}'.format(msg['Subject'], body)
+        toaddr='syedshoaibabbas786@gmail.com'
         try:
-            s.sendmail(fromaddr, newtoaddr, msg.as_string())
+            print( s.sendmail(fromaddr,toaddr, message))
             texttospeech("Your email has been sent successfully. You will now be redirected to the menu page.", file + i)
             i = i + str(1)
         except:
@@ -329,14 +323,14 @@ def compose_view(request):
             return JsonResponse({'result': 'failure'})
         s.quit()
         return JsonResponse({'result' : 'success'})
-    
+
     compose  = Compose()
-    compose.recipient = item
+    compose.recipient = 'syedshoaibabbas786@gmail.com'
     compose.subject = subject
     compose.body = body
 
     return render(request, 'homepage/compose.html', {'compose' : compose})
-   
+
 def get_body(msg):
     if msg.is_multipart():
         return get_body(msg.get_payload(0))
